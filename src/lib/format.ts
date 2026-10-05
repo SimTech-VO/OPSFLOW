@@ -24,3 +24,6 @@ export function downloadText(text: string, filename: string) {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+// Entier arrondi avec séparateur de milliers (200 000 plutôt que 200000)
+export const formatInt = (n: number) => (isFinite(n) ? Math.round(n).toLocaleString('fr-FR') : '0');
