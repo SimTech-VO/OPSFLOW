@@ -1,12 +1,11 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { cn } from './cn';
 
-// Les fonds colorés portent toujours un texte sombre (#09090b) : le blanc
-// sur orange ne dépasse pas 2,7:1, illisible en plein soleil.
+// Boutons au style SimFlow : orange plein pour l'action principale, gris sombre pour le reste.
 const VARIANTS = {
-  primary: 'bg-brand text-canvas hover:bg-brand-hover active:bg-brand-hover',
-  secondary: 'bg-panel text-fg border border-surface hover:border-fg-subtle active:bg-surface',
-  ghost: 'text-fg-muted hover:text-fg hover:bg-panel active:bg-surface',
+  primary: 'bg-brand text-white hover:bg-brand-hover active:bg-brand-hover',
+  secondary: 'bg-surface text-fg hover:bg-surface-hi active:bg-surface-hi',
+  ghost: 'text-fg-muted hover:text-fg hover:bg-surface active:bg-surface',
   success: 'bg-ok text-canvas hover:bg-ok-strong active:bg-ok-strong',
   danger: 'bg-danger text-canvas hover:brightness-110 active:brightness-95',
   warn: 'bg-warn text-canvas hover:brightness-110 active:brightness-95',
@@ -14,14 +13,15 @@ const VARIANTS = {
   'soft-danger': 'bg-danger/10 text-danger border-2 border-danger/60 hover:bg-danger/15',
   'soft-warn': 'bg-warn/10 text-warn border-2 border-warn/60 hover:bg-warn/15',
   'soft-sky': 'bg-sky/10 text-sky border-2 border-sky/50 hover:bg-sky/15',
+  // Sur les pages claires (catalogue)
+  'paper-secondary': 'bg-paper-btn text-ink hover:brightness-95 active:brightness-90',
 } as const;
 
-// Hauteurs minimales : 48 px (md), 56 px (lg), 72 px (xl) pour l'usage avec gants.
-// Le format xl (action principale pleine largeur) passe en capitales.
+// Hauteurs minimales : 48 px (md), 56 px (lg), 64 px (xl) pour l'usage avec gants.
 const SIZES = {
-  md: 'min-h-12 px-3 text-sm',
-  lg: 'min-h-14 px-4 text-base',
-  xl: 'min-h-18 px-6 text-lg uppercase tracking-wide',
+  md: 'min-h-12 px-4 text-[15px]',
+  lg: 'min-h-14 px-3 text-base',
+  xl: 'min-h-16 px-6 text-lg',
 } as const;
 
 export type ButtonVariant = keyof typeof VARIANTS;
@@ -38,7 +38,7 @@ export function Button({ variant = 'secondary', size = 'lg', block, icon, classN
     <button
       type={type}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-xl font-semibold leading-tight transition-colors select-none',
+        'inline-flex items-center justify-center gap-2 rounded-lg font-semibold leading-tight transition-colors select-none',
         'disabled:opacity-40 disabled:pointer-events-none',
         VARIANTS[variant],
         SIZES[size],
@@ -58,7 +58,7 @@ type IconButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   tone?: 'default' | 'brand' | 'ok';
 };
 
-// Bouton icône carré de 48 px, avec libellé accessible obligatoire.
+// Bouton icône de 48 px, gris sombre comme la barre d'outils SimFlow.
 export function IconButton({ label, tone = 'default', className, children, type = 'button', ...rest }: IconButtonProps) {
   return (
     <button
@@ -66,9 +66,9 @@ export function IconButton({ label, tone = 'default', className, children, type 
       aria-label={label}
       title={label}
       className={cn(
-        'inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-surface bg-panel transition-colors',
-        'hover:border-fg-subtle active:bg-surface',
-        tone === 'default' && 'text-fg-muted hover:text-fg',
+        'inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-surface transition-colors',
+        'hover:bg-surface-hi active:bg-surface-hi',
+        tone === 'default' && 'text-fg',
         tone === 'brand' && 'text-brand-light',
         tone === 'ok' && 'text-ok',
         className,

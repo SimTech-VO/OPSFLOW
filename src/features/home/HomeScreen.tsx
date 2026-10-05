@@ -1,7 +1,6 @@
-import type { ReactNode } from 'react';
-import { ChevronRight, ClipboardList, Database, Flame, Wind } from 'lucide-react';
+import { ClipboardList, Database, Play, Wind } from 'lucide-react';
 import { safeFormatTime } from '../../lib/format';
-import { NavCard, Overline, StatusDot } from '../../ui';
+import { LibraryCard, Logo, PlanIllustration } from '../../ui';
 
 const RETEX_URL = 'https://script.google.com/macros/s/AKfycbxKzSH9P3aT_CdSlX9Us1XImSXooX6xQJGOytwmzo5CJql3icyhSLpIvZb5MuSl-F-r1w/exec';
 
@@ -13,87 +12,102 @@ type HomeScreenProps = {
   isVentActive: boolean;
 };
 
-// Reprise rapide d'une opération en cours
-function ActiveOperation({ label, icon, seconds, onClick }: { label: string; icon: ReactNode; seconds: number; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="group flex min-h-18 w-full items-center gap-4 rounded-2xl border-2 border-brand bg-brand/10 px-4 py-3 text-left transition-colors hover:bg-brand/15"
-    >
-      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand text-canvas">{icon}</span>
-      <span className="flex-1">
-        <span className="flex items-center gap-2">
-          <StatusDot tone="danger" />
-          <Overline>{label}</Overline>
-        </span>
-        <span className="block font-mono text-2xl font-bold tabular text-fg">{safeFormatTime(seconds)}</span>
-      </span>
-      <ChevronRight className="text-brand-light transition-transform group-hover:translate-x-0.5" size={24} />
-    </button>
-  );
-}
-
+// Accueil construit comme SimFlow : bandeau sombre (marque et plan), puis bibliothèque de modules sur fond beige.
 export function HomeScreen({ navigateTo, foamState, ventState, isFoamActive, isVentActive }: HomeScreenProps) {
   const now = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
   return (
-    <div className="flex min-h-[100dvh] flex-col">
-      <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pt-safe pb-safe animate-fade-in">
-        {/* Bandeau : heure locale */}
-        <div className="flex items-center justify-end py-2">
-          <span className="rounded-lg border border-surface bg-panel px-3 py-1.5 font-mono text-sm tabular text-fg-muted">
-            t = <span className="text-fg">{now}</span>
-          </span>
+    <div className="flex min-h-[100dvh] flex-col bg-paper">
+      {/* Bandeau sombre : marque, heure, plan de ventilation */}
+      <section className="bg-panel pt-safe text-fg">
+        <div className="mx-auto w-full max-w-3xl px-4 pb-6 animate-fade-in">
+          <div className="flex min-h-14 items-center justify-between">
+            <Logo />
+            <span className="font-mono text-sm tabular text-fg-muted">t = <span className="text-fg">{now}</span></span>
+          </div>
+          <p className="mt-5 font-mono text-xs font-medium uppercase tracking-[0.16em] text-brand-light">Ventilation opérationnelle · Mousse</p>
+          <h1 className="mt-2 text-[32px] font-bold leading-[1.1] tracking-tight">Décider vite, sur le terrain.</h1>
+          <p className="mt-3 text-base leading-relaxed text-fg-muted">
+            L'outil d'intervention du chef d'agrès et du chef de groupe, pendant terrain du simulateur SimFlow.
+          </p>
+          <PlanIllustration className="mt-5" caption="Pavillon R+1 · VPP en entrée" time={now} />
         </div>
+      </section>
 
-        {/* Marque */}
-        <div className="pt-6 pb-8">
-          <Overline>Portail tactique opérationnel</Overline>
-          <h1 className="mt-2 text-6xl font-extrabold tracking-tighter sm:text-7xl">
-            <span className="text-fg">OPS</span><span className="text-brand">FLOW</span>
-          </h1>
-          <div className="mt-4 h-1 w-16 rounded-full bg-brand" />
-        </div>
-
+      {/* Bibliothèque de modules, fond beige */}
+      <main className="mx-auto w-full max-w-3xl flex-1 space-y-4 px-4 py-6 text-ink">
         {(isFoamActive || isVentActive) && (
-          <section className="mb-6 space-y-3" aria-label="Opérations en cours">
-            {isFoamActive && (
-              <ActiveOperation label="Mousse en cours" icon={<Flame size={24} />} seconds={foamState?.elapsedSeconds || 0} onClick={() => navigateTo('foam-live')} />
-            )}
+          <section className="space-y-3" aria-label="Opérations en cours">
+            <h2 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-ink-muted">En cours</h2>
             {isVentActive && (
-              <ActiveOperation label="Ventilation en cours" icon={<Wind size={24} />} seconds={ventState?.elapsedSeconds || 0} onClick={() => navigateTo('ventilation')} />
+              <LibraryCard
+                highlighted
+                primary
+                category="Ventilation en cours"
+                categoryIcon={<Wind size={16} />}
+                title={safeFormatTime(ventState?.elapsedSeconds || 0)}
+                description="Chronomètre de la phase en cours. Reprenez le suivi, le séquencement ou le bilan."
+                action="Reprendre"
+                actionIcon={<Play size={16} className="fill-current" />}
+                onAction={() => navigateTo('ventilation')}
+              />
+            )}
+            {isFoamActive && (
+              <LibraryCard
+                highlighted
+                primary
+                category="Mousse en cours"
+                categoryIcon={<Database size={16} />}
+                title={safeFormatTime(foamState?.elapsedSeconds || 0)}
+                description="Production de mousse engagée. Reprenez le suivi de l'autonomie et le point de situation."
+                action="Reprendre"
+                actionIcon={<Play size={16} className="fill-current" />}
+                onAction={() => navigateTo('foam-live')}
+              />
             )}
           </section>
         )}
 
         <section className="space-y-3" aria-label="Modules">
-          <Overline tone="muted">Modules</Overline>
-          <NavCard
-            title="Ventilation"
-            description="Assistant PMTT & séquences"
-            icon={<Wind size={28} />}
-            accent="sky"
-            onClick={() => navigateTo('ventilation')}
+          <div className="pb-1">
+            <h2 className="text-[28px] font-bold leading-tight tracking-tight">Modules</h2>
+            <p className="mt-1 text-base text-ink-muted">Les outils d'aide à la décision OpsFlow.</p>
+          </div>
+          <LibraryCard
+            primary={!isFoamActive && !isVentActive}
+            category="Module"
+            categoryIcon={<Wind size={16} />}
+            dot="sky"
+            title="Ventilation opérationnelle"
+            description="Reconnaissance 360°, choix PMTT, checklist de sécurité, suivi chronométré des phases et rapport au COS."
+            action="Ouvrir"
+            actionIcon={<Play size={16} className="fill-current" />}
+            onAction={() => navigateTo('ventilation')}
           />
-          <NavCard
+          <LibraryCard
+            category="Module"
+            categoryIcon={<Database size={16} />}
+            dot="brand"
             title="Mousse"
-            description="Calculateur & autonomie"
-            icon={<Database size={28} />}
-            onClick={() => navigateTo('foam-menu')}
+            description="Autonomie en eau et en émulseur en direct, et planificateur des besoins selon les taux de la FOD."
+            action="Ouvrir"
+            actionIcon={<Play size={16} className="fill-current" />}
+            onAction={() => navigateTo('foam-menu')}
           />
-          <NavCard
-            compact
+          <LibraryCard
+            category="Retour d'expérience"
+            categoryIcon={<ClipboardList size={16} />}
+            dot="ok"
             title="Saisir un RETEX"
-            description="Retours d'expérience"
-            icon={<ClipboardList size={22} />}
-            accent="muted"
-            onClick={() => window.open(RETEX_URL, '_blank')}
+            description="Partagez ce qui a fonctionné, ou pas, après l'intervention."
+            action="Ouvrir le formulaire"
+            onAction={() => window.open(RETEX_URL, '_blank')}
           />
         </section>
 
-        <p className="mt-auto pt-10 text-center font-mono text-xs uppercase tracking-[0.08em] text-fg-subtle">
-          Outils numérique par <span className="font-bold text-fg-muted">Cucalon & Decarreaux</span>
+        <p className="pt-6 text-center text-sm text-ink-muted">
+          OpsFlow et SimFlow · SimTech-VO<br />
+          Outils numérique par <span className="font-semibold text-ink">Cucalon &amp; Decarreaux</span>
         </p>
       </main>
     </div>

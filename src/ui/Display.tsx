@@ -52,7 +52,7 @@ export function StatTile({ tone = 'default', className, children }: { tone?: 'de
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center rounded-2xl border p-4',
+        'flex flex-col items-center justify-center rounded-xl border p-4',
         tone === 'default' && 'border-surface bg-panel',
         tone === 'danger' && 'border-danger bg-danger/10',
         tone === 'brand' && 'border-brand/50 bg-brand/10',
