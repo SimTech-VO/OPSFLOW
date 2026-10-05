@@ -1,40 +1,133 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   Charte graphique OPSFLOW
+   Les couleurs sont exposées en tokens Tailwind : bg-canvas, text-fg-muted,
+   border-surface, bg-brand/10, etc. Aucune couleur en dur dans les écrans.
+   ========================================================================== */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Fonds et surfaces */
+  --color-canvas: #09090b;      /* Fond sombre principal */
+  --color-panel: #18181b;       /* Fond secondaire : bandeaux, panneaux */
+  --color-surface: #27272a;     /* Gris des surfaces, bordures */
+
+  /* Textes */
+  --color-fg: #fafafa;          /* Texte clair */
+  --color-fg-muted: #a1a1aa;    /* Texte secondaire */
+  --color-fg-subtle: #71717a;   /* Texte discret : mentions non opérationnelles uniquement */
+
+  /* Marque */
+  --color-brand: #f97316;       /* Orange principal : boutons (texte sombre obligatoire) */
+  --color-brand-hover: #ea580c; /* Orange foncé : survol / appui */
+  --color-brand-light: #fb923c; /* Orange clair : sur-titres */
+
+  /* Couleurs sémantiques */
+  --color-ok: #22c55e;          /* Réussite, porte ouverte */
+  --color-ok-strong: #10b981;
+  --color-warn: #f59e0b;        /* Exutoires, alertes */
+  --color-danger: #ef4444;      /* Feu, porte fermée, danger */
+  --color-sky: #38bdf8;         /* Flux d'air, eau */
+  --color-navy: #162744;        /* Intérieur des pièces */
+  --color-slate: #475569;       /* Murs */
+  --color-sand: #e6e4df;        /* Beige clair (SIMFLOW) : non utilisé en intervention */
+
+  --animate-fade-in: fade-in 0.2s ease-out both;
+  --animate-spin-slow: spin-slow 6s linear infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes spin-slow {
+    to { transform: rotate(360deg); }
+  }
 }
 
 @layer base {
-  html {
-    -webkit-tap-highlight-color: transparent;
-    scroll-behavior: smooth;
+  :root {
+    color-scheme: dark;
   }
-  
+
+  html {
+    background-color: var(--color-canvas);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
+    background-color: var(--color-canvas);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
     overscroll-behavior-y: none;
     user-select: none;
     -webkit-user-select: none;
   }
 
-  /* Allow text selection only on inputs and specific text areas if needed */
-  input, textarea {
+  /* Sélection de texte autorisée uniquement dans les champs */
+  input,
+  textarea {
     user-select: text;
     -webkit-user-select: text;
   }
-}
 
-@layer utilities {
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  
-  /* Optimize touch targets */
-  .touch-manipulation {
+  button {
+    cursor: pointer;
     touch-action: manipulation;
   }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  /* Champs numériques : pas de flèches natives, trop petites au doigt */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Chiffres à chasse fixe : les chronos ne « bougent » pas en largeur */
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Marges de sécurité pour les écrans à encoche */
+@utility pt-safe {
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+}
+
+@utility pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
