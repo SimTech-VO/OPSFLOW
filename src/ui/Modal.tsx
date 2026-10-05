@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from './cn';
 import { IconButton } from './Button';
@@ -21,7 +22,8 @@ export function Modal({ title, icon, onClose, footer, tone = 'default', children
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  return (
+  // Rendu dans <body> : un parent animé (transform) piégerait la position fixe
+  return createPortal(
     <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/75 sm:items-center sm:p-4" role="dialog" aria-modal="true">
       <div
         className={cn(
@@ -43,13 +45,14 @@ export function Modal({ title, icon, onClose, footer, tone = 'default', children
         <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4 hide-scrollbar">{children}</div>
         {footer && <div className="border-t border-surface px-5 pt-4 pb-safe">{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
 // Bandeau de notification temporaire, en haut de l'écran.
 export function Toast({ children, tone = 'brand' }: { children: ReactNode; tone?: 'brand' | 'ok' | 'danger' }) {
-  return (
+  return createPortal(
     <div className="pointer-events-none fixed inset-x-0 top-0 z-[200] flex justify-center px-4 pt-safe" role="status" aria-live="assertive">
       <div
         className={cn(
@@ -61,6 +64,7 @@ export function Toast({ children, tone = 'brand' }: { children: ReactNode; tone?
       >
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
