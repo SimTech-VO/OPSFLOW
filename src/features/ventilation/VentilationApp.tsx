@@ -14,6 +14,8 @@ import {
   Stat, StatTile, StatusDot, Toast, cn, useFlash,
 } from '../../ui';
 import { VENT_MATERIAL_LABELS, VENT_SPECS } from './data';
+import { PlanPanel, formatPlanTime, usePlanPhoto } from './PlanPhoto';
+import { planStore } from '../../lib/planStore';
 
 // Fix for Leaflet default icon in React
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -49,6 +51,7 @@ export function VentilationApp({ onBack, onHome }: { onBack: () => void, onHome:
   const [history, setHistory] = useState<any[]>(Array.isArray(savedState?.history) ? savedState.history : []);
   const [windDir, setWindDir] = useState<string | null>(savedState?.windDir || null);
   const [flash, showFlash] = useFlash();
+  const { plan } = usePlanPhoto();
 
   const [geoData, setGeoData] = useState<{ lat: number, lon: number } | null>(null);
   const [weatherData, setWeatherData] = useState<{ windSpeed: number, windDirDegrees: number, windDirText: string } | null>(null);
@@ -168,6 +171,7 @@ export function VentilationApp({ onBack, onHome }: { onBack: () => void, onHome:
     report += `Engagement : ${engagementARI === 'ARI' ? 'Avec ARI' : 'Sans ARI'}\n`;
     const matFinal = matList(materials, reportMat) || 'Aucun';
     report += `Matériel : ${matFinal}\n`;
+    if (plan) report += `\nPlan d'intervention : photographié à ${formatPlanTime(plan.takenAt)}\n`;
 
     return report;
   };
@@ -196,6 +200,7 @@ export function VentilationApp({ onBack, onHome }: { onBack: () => void, onHome:
     report += `Engagement : ${engagementARI === 'ARI' ? 'Avec ARI' : 'Sans ARI'}\n`;
     const matFinal = matList(materials, reportMat) || 'Aucun';
     report += `Matériel : ${matFinal}\n`;
+    if (plan) report += `\nPlan d'intervention : photographié à ${formatPlanTime(plan.takenAt)}\n`;
 
     return report;
   };
@@ -333,6 +338,7 @@ export function VentilationApp({ onBack, onHome }: { onBack: () => void, onHome:
                 setChecks({ vent: false, batiment: false, stopFumee: false, lance: false, autorise: false, influenceFoyer: false });
                 setPmtt({ naturel: false, force: false, horizontale: false, verticale: false, defensive: false, vpp: false, depression: false });
                 setMaterials({ batfan: 0, mt296: 0, sax: 0, stopPetit: 0, stopGrand: 0 });
+                planStore.remove(); // nouveau bâtiment : l'ancien plan n'a plus lieu d'être
               }}
             >
               Nouvelle inter.
@@ -346,6 +352,8 @@ export function VentilationApp({ onBack, onHome }: { onBack: () => void, onHome:
             <h2 className="text-xl font-semibold text-fg">Bilan de l'opération</h2>
           </div>
         </Panel>
+
+        <PlanPanel mode="view" height="md" />
 
         <div className="grid grid-cols-2 gap-3">
           <StatTile><Stat label="Durée totale" value={safeFormatTime(totalSeconds)} /></StatTile>
@@ -467,6 +475,8 @@ export function VentilationApp({ onBack, onHome }: { onBack: () => void, onHome:
               </div>
             </Panel>
 
+            <PlanPanel mode="capture" />
+
             <Panel
               title="Sens du vent"
               icon={<Compass size={18} />}
@@ -547,6 +557,7 @@ export function VentilationApp({ onBack, onHome }: { onBack: () => void, onHome:
 
         {step === 2 && (
           <div className="space-y-4 animate-fade-in">
+            <PlanPanel mode="view" height="md" />
             <div className="flex items-center justify-center gap-3 rounded-xl border-2 border-danger bg-danger/10 p-4">
               <ShieldAlert size={24} className="text-danger" />
               <h3 className="text-base font-bold uppercase tracking-wide text-danger">Tactique offensive interdite</h3>
@@ -588,6 +599,7 @@ export function VentilationApp({ onBack, onHome }: { onBack: () => void, onHome:
 
         {step === 3 && (
           <div className="space-y-4 animate-fade-in">
+            <PlanPanel mode="view" height="md" />
             <Panel title="Matériels utilisés" icon={<Settings size={18} />} aside={<Badge tone="ok">Inclure autres FPT</Badge>}>
               <div className="space-y-2">
                 {Object.entries(VENT_MATERIAL_LABELS).map(([k,l]) => (
@@ -614,6 +626,7 @@ export function VentilationApp({ onBack, onHome }: { onBack: () => void, onHome:
 
         {step === 4 && (
           <div className="space-y-4 animate-fade-in">
+            <PlanPanel mode="view" />
             <StatTile tone={isVentilating ? 'default' : 'danger'} className="gap-3 py-8">
               <Wind size={44} className={isVentilating ? 'text-sky animate-spin-slow' : 'text-danger'} />
               <Overline tone={isVentilating ? 'sky' : 'danger'}>{isVentilating ? "Ventilation active" : "Ventilation stoppée"}</Overline>

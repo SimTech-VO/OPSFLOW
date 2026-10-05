@@ -1,6 +1,7 @@
 import { ClipboardList, Database, Play, Wind } from 'lucide-react';
 import { safeFormatTime } from '../../lib/format';
 import { LibraryCard, Logo, PlanIllustration } from '../../ui';
+import { HomePlan } from '../ventilation/PlanPhoto';
 
 const RETEX_URL = 'https://script.google.com/macros/s/AKfycbxKzSH9P3aT_CdSlX9Us1XImSXooX6xQJGOytwmzo5CJql3icyhSLpIvZb5MuSl-F-r1w/exec';
 
@@ -18,7 +19,7 @@ export function HomeScreen({ navigateTo, foamState, ventState, isFoamActive, isV
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-paper">
-      {/* Bandeau sombre : marque, heure, plan de ventilation */}
+      {/* Bandeau sombre : marque, heure, plan d'intervention */}
       <section className="bg-panel pt-safe text-fg">
         <div className="mx-auto w-full max-w-3xl px-4 pb-6 animate-fade-in">
           <div className="flex min-h-14 items-center justify-between">
@@ -30,7 +31,12 @@ export function HomeScreen({ navigateTo, foamState, ventState, isFoamActive, isV
           <p className="mt-3 text-base leading-relaxed text-fg-muted">
             L'outil d'intervention du chef d'agrès et du chef de groupe, pendant terrain du simulateur SimFlow.
           </p>
-          <PlanIllustration className="mt-5" caption="Pavillon R+1 · VPP en entrée" time={now} />
+          {/* Plan d'intervention photographié, ou illustration en attendant la photo */}
+          <div className="mt-5">
+            <HomePlan onOpen={() => navigateTo('ventilation')}>
+              <PlanIllustration caption="Pavillon R+1 · VPP en entrée" time={now} />
+            </HomePlan>
+          </div>
         </div>
       </section>
 
