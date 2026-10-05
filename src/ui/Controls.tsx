@@ -1,11 +1,11 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
-import { CheckSquare, ChevronRight, Minus, Plus, Square } from 'lucide-react';
+import { CheckSquare, Minus, Plus, Square } from 'lucide-react';
 import { cn } from './cn';
 
 type Tone = 'brand' | 'ok' | 'danger' | 'sky' | 'warn' | 'light';
 
 const SELECTED: Record<Tone, string> = {
-  brand: 'bg-brand border-brand text-canvas',
+  brand: 'bg-brand border-brand text-white',
   ok: 'bg-ok border-ok text-canvas',
   danger: 'bg-danger border-danger text-canvas',
   sky: 'bg-sky border-sky text-canvas',
@@ -18,16 +18,16 @@ type ChoiceProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   tone?: Tone;
 };
 
-// Option d'un choix exclusif (préréglage, taux, mode…) : 48 px minimum.
+// Option d'un choix exclusif (style barre d'outils SimFlow) : 48 px minimum.
 export function Choice({ selected, tone = 'brand', className, children, type = 'button', ...rest }: ChoiceProps) {
   return (
     <button
       type={type}
       aria-pressed={selected}
       className={cn(
-        'min-h-12 rounded-xl border-2 px-3 py-2 text-sm font-semibold transition-colors',
+        'min-h-12 rounded-lg border-2 px-3 py-2 text-[15px] font-semibold transition-colors',
         'disabled:opacity-35 disabled:pointer-events-none',
-        selected ? SELECTED[tone] : 'border-surface bg-canvas text-fg hover:border-fg-subtle',
+        selected ? SELECTED[tone] : 'border-transparent bg-surface text-fg hover:bg-surface-hi',
         className,
       )}
       {...rest}
@@ -48,7 +48,7 @@ type StepperProps = {
 // Réglage −/+ avec valeur centrale (affichage ou champ de saisie).
 export function Stepper({ onDecrement, onIncrement, children, label, size = 'lg' }: StepperProps) {
   const btn = cn(
-    'flex shrink-0 items-center justify-center rounded-xl border border-surface bg-surface text-fg transition-colors hover:border-fg-subtle active:bg-canvas',
+    'flex shrink-0 items-center justify-center rounded-lg bg-surface text-fg transition-colors hover:bg-surface-hi active:bg-surface-hi',
     size === 'lg' ? 'h-14 w-14' : 'h-12 w-12',
   );
   return (
@@ -56,7 +56,7 @@ export function Stepper({ onDecrement, onIncrement, children, label, size = 'lg'
       <button type="button" aria-label={`Diminuer ${label}`} onClick={onDecrement} className={btn}>
         <Minus size={22} />
       </button>
-      <div className={cn('flex flex-1 items-center justify-center gap-1 overflow-hidden rounded-xl border border-surface bg-canvas', size === 'lg' ? 'h-14' : 'h-12')}>
+      <div className={cn('flex flex-1 items-center justify-center gap-1 overflow-hidden rounded-lg border border-surface bg-canvas', size === 'lg' ? 'h-14' : 'h-12')}>
         {children}
       </div>
       <button type="button" aria-label={`Augmenter ${label}`} onClick={onIncrement} className={btn}>
@@ -93,56 +93,70 @@ export function CheckRow({ checked, onToggle, label, hint, icon }: CheckRowProps
       aria-checked={checked}
       onClick={onToggle}
       className={cn(
-        'flex min-h-14 w-full items-center gap-3 rounded-xl border-2 px-4 py-3 text-left transition-colors',
-        checked ? 'border-ok bg-ok/10' : 'border-surface bg-canvas hover:border-fg-subtle',
+        'flex min-h-14 w-full items-center gap-3 rounded-lg border-2 px-4 py-3 text-left transition-colors',
+        checked ? 'border-ok bg-ok/10' : 'border-transparent bg-surface hover:bg-surface-hi',
       )}
     >
       <span className={checked ? 'text-ok' : 'text-fg-subtle'}>{icon ?? (checked ? <CheckSquare size={22} /> : <Square size={22} />)}</span>
       <span className="flex-1">
-        <span className="block text-sm font-semibold text-fg">{label}</span>
-        {hint && <span className="mt-0.5 block text-xs text-fg-muted">{hint}</span>}
+        <span className="block text-[15px] font-semibold text-fg">{label}</span>
+        {hint && <span className="mt-0.5 block text-sm text-fg-muted">{hint}</span>}
       </span>
       {icon && <span className={checked ? 'text-ok' : 'text-fg-subtle'}>{checked ? <CheckSquare size={22} /> : <Square size={22} />}</span>}
     </button>
   );
 }
 
-type NavCardProps = {
+type LibraryCardProps = {
+  category: string;
+  categoryIcon: ReactNode;
+  dot?: 'danger' | 'brand' | 'sky' | 'ok';
   title: string;
   description: string;
-  icon: ReactNode;
-  onClick: () => void;
-  accent?: 'brand' | 'sky' | 'muted';
-  compact?: boolean;
+  action: string;
+  actionIcon?: ReactNode;
+  onAction: () => void;
+  primary?: boolean;
+  highlighted?: boolean;
+  footnote?: ReactNode;
 };
 
-// Tuile de navigation (menus) : grande cible tactile, icône, titre et description.
-export function NavCard({ title, description, icon, onClick, accent = 'brand', compact }: NavCardProps) {
+// Carte de module sur page claire, construite comme les cartes « Mission » de la bibliothèque SimFlow.
+export function LibraryCard({ category, categoryIcon, dot = 'danger', title, description, action, actionIcon, onAction, primary, highlighted, footnote = 'OpsFlow' }: LibraryCardProps) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'group flex w-full items-center gap-4 rounded-2xl border border-surface bg-panel text-left transition-colors hover:border-fg-subtle active:bg-surface',
-        compact ? 'min-h-18 p-3' : 'min-h-24 p-4',
-      )}
-    >
-      <span
-        className={cn(
-          'flex shrink-0 items-center justify-center rounded-xl',
-          compact ? 'h-12 w-12' : 'h-14 w-14',
-          accent === 'brand' && 'bg-brand text-canvas',
-          accent === 'sky' && 'bg-sky text-canvas',
-          accent === 'muted' && 'bg-surface text-fg',
-        )}
-      >
-        {icon}
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className={cn('block font-semibold text-fg', compact ? 'text-base' : 'text-lg')}>{title}</span>
-        <span className="mt-0.5 block text-sm text-fg-muted">{description}</span>
-      </span>
-      <ChevronRight className="shrink-0 text-fg-subtle transition-transform group-hover:translate-x-0.5" size={22} />
-    </button>
+    <article className={cn('flex flex-col gap-3 rounded-xl border bg-paper-card p-5', highlighted ? 'border-brand/70' : 'border-paper-line')}>
+      <p className="flex items-center gap-2 text-sm text-ink-muted">
+        <span className="text-ink-muted">{categoryIcon}</span>
+        <span
+          aria-hidden
+          className={cn(
+            'h-2 w-2 rounded-full',
+            dot === 'danger' && 'bg-danger',
+            dot === 'brand' && 'bg-brand',
+            dot === 'sky' && 'bg-sky',
+            dot === 'ok' && 'bg-ok',
+          )}
+        />
+        {category}
+      </p>
+      <div>
+        <h2 className="text-xl font-semibold leading-snug text-ink">{title}</h2>
+        <p className="mt-1.5 text-[15px] leading-relaxed text-ink-muted">{description}</p>
+      </div>
+      <div className="mt-1 flex items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={onAction}
+          className={cn(
+            'inline-flex min-h-12 items-center gap-2 rounded-lg px-4 text-[15px] font-semibold transition-colors',
+            primary ? 'bg-brand text-white hover:bg-brand-hover' : 'bg-paper-btn text-ink hover:brightness-95',
+          )}
+        >
+          {actionIcon}
+          {action}
+        </button>
+        <span className="text-sm text-ink-muted">{footnote}</span>
+      </div>
+    </article>
   );
 }

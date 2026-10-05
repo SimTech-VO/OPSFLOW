@@ -10,7 +10,7 @@ import 'leaflet/dist/leaflet.css';
 import { loadPersistedState, STORAGE_KEYS } from '../../lib/storage';
 import { copyText, downloadText, safeFormatTime } from '../../lib/format';
 import {
-  Badge, Button, CheckRow, Choice, IconButton, Modal, NavCard, Overline, Panel, Screen, ScreenHeader,
+  Badge, Button, CheckRow, Choice, IconButton, LibraryCard, Modal, Overline, Panel, PaperScreen, Screen, ScreenHeader,
   Stat, StatTile, StatusDot, Toast, cn, useFlash,
 } from '../../ui';
 import { VENT_MATERIAL_LABELS, VENT_SPECS } from './data';
@@ -204,23 +204,32 @@ export function VentilationApp({ onBack, onHome }: { onBack: () => void, onHome:
 
   if (view === 'menu') {
     return (
-      <Screen header={<ScreenHeader overline="Opérationnelle" title="Ventilation" onBack={onBack} onHome={onHome} />}>
-        <div className="space-y-3 pt-2">
-          <NavCard
-            title="Opérations (Live)"
-            description="Suivi d'intervention, chronomètre, phases et bilan"
-            icon={<Play size={26} className="fill-current" />}
-            onClick={() => setView('operational')}
-          />
-          <NavCard
-            title="Spécificités matériel"
-            description="Fiches techniques ventilateurs (Batfan, SAX, MT296)"
-            icon={<FileText size={26} />}
-            accent="muted"
-            onClick={() => setView('specs')}
-          />
-        </div>
-      </Screen>
+      <PaperScreen
+        header={<ScreenHeader overline="Module" title="Ventilation" onBack={onBack} onHome={onHome} />}
+        title="Ventilation opérationnelle"
+        description="Assistant de manœuvre PMTT, du 360° au bilan, et fiches du matériel."
+      >
+        <LibraryCard
+          primary
+          category="Opération"
+          categoryIcon={<Wind size={16} />}
+          dot={isVentilating ? 'danger' : 'sky'}
+          title={history.length > 0 || isVentilating ? `Phase ${history.length + 1} en cours` : 'Opérations en direct'}
+          description="Reconnaissance, manœuvre, checklist de sécurité, chronomètre des phases et rapport au COS."
+          action={history.length > 0 || isVentilating ? 'Reprendre' : 'Démarrer'}
+          actionIcon={<Play size={16} className="fill-current" />}
+          onAction={() => setView('operational')}
+        />
+        <LibraryCard
+          category="Référence"
+          categoryIcon={<FileText size={16} />}
+          dot="brand"
+          title="Spécificités matériel"
+          description="Fiches techniques des ventilateurs : Batfan 3 Li+, SAX 350, MT296."
+          action="Consulter"
+          onAction={() => setView('specs')}
+        />
+      </PaperScreen>
     );
   }
 
@@ -428,7 +437,7 @@ export function VentilationApp({ onBack, onHome }: { onBack: () => void, onHome:
         footer={footer}
       >
         {/* Étapes */}
-        <nav className="grid grid-cols-4 gap-1 rounded-xl border border-surface bg-panel p-1" aria-label="Étapes">
+        <nav className="grid grid-cols-4 border-b border-surface" aria-label="Étapes">
           {STEP_LABELS.map((l, i) => (
             <button
               key={i}
@@ -436,8 +445,8 @@ export function VentilationApp({ onBack, onHome }: { onBack: () => void, onHome:
               aria-current={step === i+1 ? 'step' : undefined}
               onClick={() => setStep(i+1)}
               className={cn(
-                'flex min-h-12 flex-col items-center justify-center rounded-lg px-1 text-sm font-semibold transition-colors',
-                step === i+1 ? 'bg-brand text-canvas' : 'text-fg-muted hover:text-fg',
+                '-mb-px flex min-h-14 flex-col items-center justify-center border-b-2 px-1 text-[15px] transition-colors',
+                step === i+1 ? 'border-brand font-bold text-fg' : 'border-transparent font-medium text-fg-muted hover:text-fg',
               )}
             >
               <span className="font-mono text-xs">{i+1}</span>
@@ -520,7 +529,7 @@ export function VentilationApp({ onBack, onHome }: { onBack: () => void, onHome:
                       }}
                       className={cn(
                         'absolute flex h-12 w-12 items-center justify-center rounded-full border-2 font-mono text-sm font-bold transition-colors',
-                        windDir === d ? 'border-brand bg-brand text-canvas' : 'border-surface bg-panel text-fg hover:border-fg-subtle',
+                        windDir === d ? 'border-brand bg-brand text-white' : 'border-surface bg-panel text-fg hover:border-fg-subtle',
                       )}
                       style={{ transform: `rotate(${i * 45}deg) translate(0, -92px) rotate(-${i * 45}deg)` }}
                     >
@@ -538,7 +547,7 @@ export function VentilationApp({ onBack, onHome }: { onBack: () => void, onHome:
 
         {step === 2 && (
           <div className="space-y-4 animate-fade-in">
-            <div className="flex items-center justify-center gap-3 rounded-2xl border-2 border-danger bg-danger/10 p-4">
+            <div className="flex items-center justify-center gap-3 rounded-xl border-2 border-danger bg-danger/10 p-4">
               <ShieldAlert size={24} className="text-danger" />
               <h3 className="text-base font-bold uppercase tracking-wide text-danger">Tactique offensive interdite</h3>
             </div>
@@ -612,7 +621,7 @@ export function VentilationApp({ onBack, onHome }: { onBack: () => void, onHome:
             </StatTile>
             <div className="grid grid-cols-2 gap-3">
               {[ {i:ArrowDownToLine,c:'text-ok',l:'Flux entrant'}, {i:ArrowUpFromLine,c:'text-brand-light',l:'Flux sortant'}, {i:Activity,c:'text-sky',l:'Efficacité'}, {i:ShieldAlert,c:'text-danger',l:'CO'} ].map((it,idx)=>(
-                <div key={idx} className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl border border-surface bg-panel p-4">
+                <div key={idx} className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-xl border border-surface bg-panel p-4">
                   <it.i size={24} className={it.c} />
                   <span className="font-mono text-xs font-medium uppercase tracking-[0.12em] text-fg-muted">{it.l}</span>
                 </div>

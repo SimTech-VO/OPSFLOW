@@ -32,7 +32,16 @@
   --color-sky: #38bdf8;         /* Flux d'air, eau */
   --color-navy: #162744;        /* Intérieur des pièces */
   --color-slate: #475569;       /* Murs */
-  --color-sand: #e6e4df;        /* Beige clair (SIMFLOW) : non utilisé en intervention */
+  --color-sand: #e6e4df;        /* Beige clair : fond des pages catalogue (comme SimFlow) */
+  --color-surface-hi: #3f3f46;  /* Survol / élément actif sur fond sombre */
+
+  /* Pages claires (catalogue de modules, comme la bibliothèque SimFlow) */
+  --color-paper: #e6e4df;       /* Fond beige */
+  --color-paper-card: #f2f1ed;  /* Carte sur fond beige */
+  --color-paper-line: #d4d1c9;  /* Bordure sur fond beige */
+  --color-paper-btn: #dcd9d2;   /* Bouton secondaire sur fond beige */
+  --color-ink: #18181b;         /* Texte sur fond beige */
+  --color-ink-muted: #52525b;   /* Texte secondaire sur fond beige (6:1) */
 
   --animate-fade-in: fade-in 0.2s ease-out both;
   --animate-spin-slow: spin-slow 6s linear infinite;
